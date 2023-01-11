@@ -11,8 +11,7 @@ class Logger {
 
   final Isar _isar = Isar.openSync([LogSchema], name: 'nocab_logger');
 
-  final StreamController<Log> _logController = StreamController<Log>.broadcast();
-  Stream<Log> get onLogged => _logController.stream;
+  Stream get onLogged => _isar.logs.watchLazy();
 
   void _log(LogType logType, String message, String className, Object? error, StackTrace? stackTrace) {
     final log = Log(
@@ -24,7 +23,6 @@ class Logger {
       stackTrace: stackTrace?.toString(),
     );
 
-    _logController.add(log);
     print(log.toString());
     _isar.writeTxnSync(() => _isar.logs.putSync(log));
   }
