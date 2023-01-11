@@ -11,7 +11,7 @@ class Logger {
 
   final Isar _isar = Isar.openSync([LogSchema], name: 'nocab_logger');
 
-  Stream get onLogged => _isar.logs.watchLazy();
+  Stream<void> get onLogged => _isar.logs.watchLazy();
 
   void _log(LogType logType, String message, String className, Object? error, StackTrace? stackTrace) {
     final log = Log(
