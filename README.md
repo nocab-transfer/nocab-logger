@@ -1,4 +1,4 @@
-# Dart Logger
+# NoCab Logger
 
 A simple and flexible logging package for Dart applications. Uses [Isar](https://isar.dev) as database.
 
@@ -12,7 +12,7 @@ A simple and flexible logging package for Dart applications. Uses [Isar](https:/
 Add the following to your `pubspec.yaml` file:
 ```yaml
 dependencies:
-  dart_logger:
+  nocab_logger:
     git: https://github.com/nocab-transfer/nocab-logger.git
 ```
 
