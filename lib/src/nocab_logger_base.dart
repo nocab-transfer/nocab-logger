@@ -65,4 +65,9 @@ class Logger {
     // delete logs older than 30 days
     _isar.logs.filter().dateTimeLessThan(DateTime.now().subtract(Duration(days: 30))).deleteAll();
   }
+
+  /// Only use this method for non-Flutter code or unit tests.
+  static Future<void> downloadIsarCore() async {
+    await Isar.initializeIsarCore(download: true);
+  }
 }
