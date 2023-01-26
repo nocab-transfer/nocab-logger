@@ -1,6 +1,6 @@
-on: push
-
 name: Check Code
+
+on: [ push, pull_request ]
 
 jobs:
   build:
