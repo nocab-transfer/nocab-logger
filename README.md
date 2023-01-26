@@ -16,16 +16,31 @@ dependencies:
     git: https://github.com/nocab-transfer/nocab-logger.git
 ```
 
+> **Note**: Add `isar_flutter_libs` to your `pubspec.yaml` file if you are using **Flutter**:
+
+> Check the latest version on [pub.dev](https://pub.dev/packages/isar_flutter_libs)
+```yaml
+dependencies:
+  isar_flutter_libs: ^3.0.5
+```
+
+
 ## Usage
 ```dart
 import 'package:nocab_logger/nocab_logger.dart';
 
-void main() {
+void main() async {
   // Logger is a singleton, so you can access it anywhere in your application
+
+  // If you not in Flutter, you need to download the Isar libraries
+  await Logger.downloadIsarLibs();
 
   Logger().info('Info message', 'receiver_service');
   Logger().warning('Cannot convert', 'ImageConverter');
   Logger().error('Error message', 'SomeClass', error: e, stackTrace: stackTrace);
+
+  // Dispose the logger when you are done
+  Logger().dispose();
 }
 ```
 
