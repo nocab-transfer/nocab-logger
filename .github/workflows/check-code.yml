@@ -7,7 +7,7 @@ jobs:
     name: Analyze Dart
     runs-on: ubuntu-latest
     container:
-      image:  google/dart:latest
+      image: dart:beta
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
