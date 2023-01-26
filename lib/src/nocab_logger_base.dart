@@ -61,9 +61,13 @@ class Logger {
     await _isar.close(deleteFromDisk: deleteFromDisk);
   }
 
-  void deleteOldLogs() {
-    // delete logs older than 30 days
-    _isar.logs.filter().dateTimeLessThan(DateTime.now().subtract(Duration(days: 30))).deleteAll();
+  Future<void> deleteLogs({DateTime? from, DateTime? to, LogType? logType}) async {
+    final logs = await get(from: from, to: to, logType: logType);
+    await _isar.writeTxn(() async {
+      for (final log in logs) {
+        await _isar.logs.delete(log.id);
+      }
+    });
   }
 
   /// Only use this method for non-Flutter code or unit tests.
