@@ -32,7 +32,8 @@ import 'package:nocab_logger/nocab_logger.dart';
 void main() async {
   // Logger is a singleton, so you can access it anywhere in your application
 
-  // If you not in Flutter, you need to download the Isar libraries
+  // If you not in Flutter, you need to download the Isar libraries. 
+  // Downloading the libraries is not necessary in Flutter. (isar_flutter_libs)
   await Logger.downloadIsarLibs();
 
   Logger().info('Info message', 'receiver_service');
