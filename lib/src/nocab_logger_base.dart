@@ -50,8 +50,8 @@ class Logger {
     return await query.findAll();
   }
 
-  Future<void> exportLogsLast10Days(File file) async {
-    final logs = await get(from: DateTime.now().subtract(Duration(days: 10)));
+  Future<void> exportToFile(File file, {DateTime? from, DateTime? to, LogType? logType}) async {
+    final logs = await get(from: from, to: to, logType: logType);
     final string = logs.map((e) => e.toString()).join('\r\n');
     await file.create(recursive: true);
     await file.writeAsString(string);
