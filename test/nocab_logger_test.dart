@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('A group of tests', () {
+  group('Logging', () {
     late Directory testLogDir;
 
     setUp(() async {
@@ -14,7 +14,7 @@ void main() {
       await testLogDir.create(recursive: true);
     });
 
-    test('Log file', () async {
+    test('Basic', () async {
       List<int> randomInt = List.generate(3, (index) => Random().nextInt(100000));
       var logger = Logger("test", storeInFile: true, logPath: testLogDir.path, printLog: false);
 
