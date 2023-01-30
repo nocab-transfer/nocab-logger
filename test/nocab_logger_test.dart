@@ -22,6 +22,10 @@ void main() {
       expect(logs[0].message, "test info message ${randomInt[0]}");
       expect(logs[1].message, "test warning message ${randomInt[1]}");
       expect(logs[2].message, "test error message ${randomInt[2]}");
+    });
+
+    // dispose
+    tearDown(() async {
       await Logger().dispose(deleteFromDisk: true);
     });
   });
