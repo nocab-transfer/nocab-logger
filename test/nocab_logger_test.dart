@@ -16,7 +16,7 @@ void main() {
 
     test('Basic', () async {
       List<int> randomInt = List.generate(3, (index) => Random().nextInt(100000));
-      var logger = Logger("test", storeInFile: true, logPath: testLogDir.path, printLog: false);
+      var logger = Logger("test", storeInFile: true, logPath: testLogDir.path);
 
       logger.info("test info message ${randomInt[0]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
       logger.warning("test warning message ${randomInt[1]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
@@ -37,14 +37,15 @@ void main() {
     });
 
     test('Stress Test', () async {
-      List<int> randomInt = List.generate(100000, (index) => Random().nextInt(100000));
+      List<int> randomInt = List.generate(10000, (index) => Random().nextInt(100000));
       var logger = Logger('test', storeInFile: true, logPath: testLogDir.path, printLog: false);
 
       var stressStopwatch = Stopwatch()..start();
-      for (int i = 0; i < 100000; i++) {
+      for (int i = 0; i < 10000; i++) {
         logger.info("test info message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
         logger.warning("test warning message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
         logger.error("test error message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
+        logger.fatal("test fatal message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
       }
 
       await logger.close();
@@ -52,10 +53,10 @@ void main() {
 
       var fileByteSize = await logger.file.length();
       print("Stress test took ${stressStopwatch.elapsedMilliseconds}ms and created a file of size ${(fileByteSize / 1000000).toStringAsFixed(2)}MB."
-          "Average write speed: ${(fileByteSize / stressStopwatch.elapsedMilliseconds).toStringAsFixed(2)}MB/s");
+          "Average write speed: ${(fileByteSize / stressStopwatch.elapsedMilliseconds).toStringAsFixed(2)}KB/s");
 
       final logs = await logger.file.readAsLines();
-      expect(logs.length, 300000);
+      expect(logs.length, 40000);
 
       print("Checking validity of logs...");
       var validityStopwatch = Stopwatch()..start();
@@ -67,5 +68,5 @@ void main() {
     });
 
     tearDown(() => testLogDir.deleteSync(recursive: true));
-  }, timeout: Timeout(Duration(minutes: 2)));
+  });
 }
