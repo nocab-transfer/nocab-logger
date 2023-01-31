@@ -62,4 +62,12 @@ class Logger {
     final lines = await file.readAsLines();
     return lines.every((element) => Log.checkValidity(element));
   }
+
+  static Future<List<Log>> getLogs(File file) async {
+    if (!await file.exists()) throw Exception('File does not exist');
+    if ((await file.length()) > 500000000) throw Exception('File is too big'); // 500 MB
+
+    final lines = await file.readAsLines();
+    return lines.map((e) => Log.fromString(e)).toList();
+  }
 }
