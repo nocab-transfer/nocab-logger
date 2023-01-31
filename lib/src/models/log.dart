@@ -15,7 +15,7 @@ class Log extends LogRecord {
 
   @override
   String toString() {
-    return '[${level.logLevel.name}] - ${time.toIso8601String()} $loggerName: $message ${error != null ? '[$error]' : ''} ${stackTrace != null ? '[$stackTrace]' : ''}'
+    return '[${level.logLevel.name}] - ${time.toIso8601String()} $loggerName: $message ${error != null ? '[$error]' : ''} ${stackTrace != null ? '[StackTrace:\n${stackTrace.toString().trim()}]' : ''}'
         .replaceAll('\n', '\\n');
   }
 
