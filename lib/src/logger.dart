@@ -56,10 +56,10 @@ class Logger {
   }
 
   static Future<bool> isFileValid(File file) async {
-    final logs = await file.readAsLines();
-    for (final log in logs) {
-      if (!Log.checkValidity(log)) return false;
-    }
-    return true;
+    if (!await file.exists()) throw Exception('File does not exist');
+    if ((await file.length()) > 500000000) throw Exception('File is too big'); // 500 MB
+
+    final lines = await file.readAsLines();
+    return lines.every((element) => Log.checkValidity(element));
   }
 }
