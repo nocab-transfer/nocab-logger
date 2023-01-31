@@ -45,6 +45,11 @@ class Logger {
     _mainLogger.severe(message, error, stackTrace);
   }
 
+  void fatal(String message, String className, {Object? error, StackTrace? stackTrace}) {
+    if (_isClosed) throw Exception('Logger is closed');
+    _mainLogger.shout(message, error, stackTrace);
+  }
+
   Future<void> close() async {
     await _sink?.flush();
     await _sink?.close();
