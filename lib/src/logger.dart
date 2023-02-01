@@ -35,6 +35,15 @@ class Logger {
     });
   }
 
+  factory Logger.fromFile(File file) {
+    if (!file.path.endsWith('.log')) throw FormatException('File must be a .log file');
+    if (!basenameWithoutExtension(file.path).contains('-')) throw FormatException('File is not a valid log file');
+    if (!Logger.isFileValidSync(file)) throw FormatException('File is not a valid log file');
+
+    String name = basenameWithoutExtension(file.path).split('-').first;
+    return Logger(name, storeInFile: true, logPath: dirname(file.path));
+  }
+
   void _log(LogLevel level, String message, {String? className, Object? error, StackTrace? stackTrace}) {
     if (className != null && className.length < 2) throw FormatException('Class name must be at least 2 characters long');
     if (_isClosed) throw Exception('Logger is closed');
@@ -69,6 +78,14 @@ class Logger {
     if ((await file.length()) > 500000000) throw Exception('File is too big'); // 500 MB
 
     final lines = await file.readAsLines();
+    return lines.every((element) => Log.checkValidity(element));
+  }
+
+  static bool isFileValidSync(File file) {
+    if (!file.existsSync()) throw Exception('File does not exist');
+    if (file.lengthSync() > 500000000) throw Exception('File is too big'); // 500 MB
+
+    final lines = file.readAsLinesSync();
     return lines.every((element) => Log.checkValidity(element));
   }
 
