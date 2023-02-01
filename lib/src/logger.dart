@@ -30,22 +30,22 @@ class Logger {
     });
   }
 
-  void info(String message, String className, {Object? error, StackTrace? stackTrace}) {
+  void info(String message, {Object? error, StackTrace? stackTrace}) {
     if (_isClosed) throw Exception('Logger is closed');
     _mainLogger.info(message, error, stackTrace);
   }
 
-  void warning(String message, String className, {Object? error, StackTrace? stackTrace}) {
+  void warning(String message, {Object? error, StackTrace? stackTrace}) {
     if (_isClosed) throw Exception('Logger is closed');
     _mainLogger.warning(message, error, stackTrace);
   }
 
-  void error(String message, String className, {Object? error, StackTrace? stackTrace}) {
+  void error(String message, {Object? error, StackTrace? stackTrace}) {
     if (_isClosed) throw Exception('Logger is closed');
     _mainLogger.severe(message, error, stackTrace);
   }
 
-  void fatal(String message, String className, {Object? error, StackTrace? stackTrace}) {
+  void fatal(String message, {Object? error, StackTrace? stackTrace}) {
     if (_isClosed) throw Exception('Logger is closed');
     _mainLogger.shout(message, error, stackTrace);
   }

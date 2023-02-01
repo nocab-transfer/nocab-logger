@@ -20,10 +20,10 @@ void main() {
       List<int> randomInt = List.generate(4, (index) => Random().nextInt(100000));
       var logger = Logger("test", storeInFile: true, logPath: testLogDir.path);
 
-      logger.info("test info message ${randomInt[0]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-      logger.warning("test warning message ${randomInt[1]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-      logger.error("test error message ${randomInt[2]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-      logger.fatal("test fatal message ${randomInt[3]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.info("test info message ${randomInt[0]}", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.warning("test warning message ${randomInt[1]}", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.error("test error message ${randomInt[2]}", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.fatal("test fatal message ${randomInt[3]}", error: Exception("test error"), stackTrace: StackTrace.current);
 
       await logger.close();
 
@@ -55,10 +55,10 @@ void main() {
       List<int> randomInt = List.generate(4, (index) => Random().nextInt(100000));
       var logger = Logger("test", storeInFile: true, logPath: testLogDir.path, printLog: false);
 
-      logger.info("test info message ${randomInt[0]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-      logger.warning("test warning message ${randomInt[1]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-      logger.error("test error message ${randomInt[2]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-      logger.fatal("test fatal message ${randomInt[3]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.info("test info message ${randomInt[0]}", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.warning("test warning message ${randomInt[1]}", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.error("test error message ${randomInt[2]}", error: Exception("test error"), stackTrace: StackTrace.current);
+      logger.fatal("test fatal message ${randomInt[3]}", error: Exception("test error"), stackTrace: StackTrace.current);
 
       await logger.close();
 
@@ -80,10 +80,10 @@ void main() {
 
       var stressStopwatch = Stopwatch()..start();
       for (int i = 0; i < 10000; i++) {
-        logger.info("test info message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-        logger.warning("test warning message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-        logger.error("test error message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
-        logger.fatal("test fatal message ${randomInt[i]}", "test", error: Exception("test error"), stackTrace: StackTrace.current);
+        logger.info("test info message ${randomInt[i]}", error: Exception("test error"), stackTrace: StackTrace.current);
+        logger.warning("test warning message ${randomInt[i]}", error: Exception("test error"), stackTrace: StackTrace.current);
+        logger.error("test error message ${randomInt[i]}", error: Exception("test error"), stackTrace: StackTrace.current);
+        logger.fatal("test fatal message ${randomInt[i]}", error: Exception("test error"), stackTrace: StackTrace.current);
       }
 
       await logger.close();
