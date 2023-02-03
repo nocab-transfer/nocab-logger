@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:intl/intl.dart';
 import 'package:nocab_logger/src/models/log.dart';
@@ -8,17 +9,46 @@ import 'package:path/path.dart';
 
 class Logger {
   final String name;
-  late File _file;
+  late File? _file;
 
-  final bool _isClosed = false;
-  bool get isClosed => _isClosed;
-
-  File get file => _file;
+  File? get file => _file;
 
   final StreamController<Log> _controller = StreamController<Log>.broadcast();
   Stream<Log> get onLogged => _controller.stream;
 
+  final ReceivePort _receivePort = ReceivePort();
+
+  /// Use this to send logs to this logger from another isolate.
+  ///
+  /// Example:
+  /// ```
+  /// Logger logger = Logger('MyLogger');
+  /// logger.sendPort.send(Log(LogLevel.info, 'Hello from another isolate', 'MyLogger'));
+  /// ```
+  /// loggerName will be overridden with the name of this logger.
+  SendPort get sendPort => _receivePort.sendPort;
+
   IOSink? _sink;
+
+  /// Creates a new Logger object.
+  ///
+  /// A [Logger] is used to log events to a log file and to the console.
+  ///
+  /// The [name] parameter is used to identify the logger. It is used as the
+  /// prefix for all log messages.
+  ///
+  /// If [storeInFile] is true, the log messages will be saved to a file.
+  ///
+  /// The [logPath] parameter specifies the path to the folder where the log
+  /// file should be saved. It will be ignored if [storeInFile] is false.
+  ///
+  /// If [printLog] is true, the log messages will be printed to the console.
+  ///
+  /// Throws a [FormatException] if the [name] is invalid.
+  ///
+  /// Throws a [StateError] if [storeInFile] is true and [logPath] is null.
+  ///
+  /// Throws a [FileSystemException] if the log file cannot be created.
   Logger(this.name, {bool storeInFile = false, String? logPath, bool printLog = true}) : assert(!storeInFile || logPath != null) {
     if (name.endsWith('.') || name.startsWith('.')) throw FormatException('Logger name cannot start or end with a dot (.)');
     if (name.contains(':')) throw FormatException('Logger name cannot contain a colon (:)');
@@ -26,27 +56,27 @@ class Logger {
 
     if (storeInFile) {
       _file = File(join(logPath!, '$name-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.log'))..createSync(recursive: true);
-      _sink = _file.openWrite(mode: FileMode.append);
+      _sink = _file?.openWrite(mode: FileMode.append);
     }
 
     onLogged.listen((log) {
       if (printLog) print(log.toString());
-      _sink?.writeln(log.toString().replaceAll('\n', '\\n'));
+      _sink?.writeln(log.toString().replaceAll('\n', '\\n').replaceAll('\r', '\\r'));
     });
-  }
 
-  factory Logger.fromFile(File file) {
-    if (!file.path.endsWith('.log')) throw FormatException('File must be a .log file');
-    if (!basenameWithoutExtension(file.path).contains('-')) throw FormatException('File is not a valid log file');
-    if (!Logger.isFileValidSync(file)) throw FormatException('File is not a valid log file');
-
-    String name = basenameWithoutExtension(file.path).split('-').first;
-    return Logger(name, storeInFile: true, logPath: dirname(file.path));
+    _receivePort.listen((message) {
+      if (message is Log) {
+        _log(message.level, message.message, className: message.className, error: message.error, stackTrace: message.stackTrace);
+      } else {
+        warning('Received invalid message from isolate: $message', className: 'Logger');
+      }
+    });
   }
 
   void _log(LogLevel level, String message, {String? className, Object? error, StackTrace? stackTrace}) {
     if (className != null && className.length < 2) throw FormatException('Class name must be at least 2 characters long');
-    if (_isClosed) throw Exception('Logger is closed');
+    if (_controller.isClosed) return;
+
     _controller.add(Log(level, message, name, className: className, error: error, stackTrace: stackTrace));
   }
 
@@ -67,10 +97,11 @@ class Logger {
   }
 
   Future<void> close({bool deleteFile = false}) async {
+    _receivePort.close();
     await _controller.close();
     await _sink?.flush();
     await _sink?.close();
-    if (deleteFile) await _file.delete();
+    if (deleteFile) await _file?.delete();
   }
 
   static Future<bool> isFileValid(File file) async {
