@@ -33,10 +33,10 @@ class Log {
 
     String level = match.namedGroup('level')!;
     DateTime time = DateTime.parse(match.namedGroup('time')!);
-    String loggerName = match.namedGroup('loggerName')!.replaceAll('\\n', '\n');
-    String? classname = match.namedGroup('classname')?.replaceAll('\\n', '\n');
-    String message = match.namedGroup('message')!.replaceAll('\\n', '\n');
-    Object? error = match.namedGroup('error')?.replaceAll('\\n', '\n');
+    String loggerName = match.namedGroup('loggerName')!.replaceAll('\\n', '\n').replaceAll('\\r', '\r');
+    String? classname = match.namedGroup('classname')?.replaceAll('\\n', '\n').replaceAll('\\r', '\r');
+    String message = match.namedGroup('message')!.replaceAll('\\n', '\n').replaceAll('\\r', '\r');
+    Object? error = match.namedGroup('error')?.replaceAll('\\n', '\n').replaceAll('\\r', '\r');
     StackTrace? stackTrace =
         match.namedGroup('stackTrace') != null ? StackTrace.fromString(match.namedGroup('stackTrace')!.replaceAll('\\n', '\n')) : null;
     return Log(LogLevel.values.firstWhere((e) => e.name == level), message, loggerName,
