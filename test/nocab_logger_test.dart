@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:nocab_logger/nocab_logger.dart';
-import 'package:nocab_logger/src/models/log.dart';
-import 'package:nocab_logger/src/models/log_level.dart';
 import 'package:path/path.dart';
 import 'package:test/test.dart';
 
@@ -27,12 +25,12 @@ void main() {
 
       await logger.close();
 
-      final logs = await logger.file.readAsLines();
+      final logs = await logger.file!.readAsLines();
       expect(logs.length, 4);
 
       print("Checking validity of logs...");
       var stopwatch = Stopwatch()..start();
-      var isValid = await Logger.isFileValid(logger.file);
+      var isValid = await Logger.isFileValid(logger.file!);
       stopwatch.stop();
       print("Validity check took ${stopwatch.elapsedMilliseconds}ms");
 
@@ -62,7 +60,7 @@ void main() {
 
       await logger.close();
 
-      List<Log> fetchedLogs = await Logger.getLogs(logger.file);
+      List<Log> fetchedLogs = await Logger.getLogs(logger.file!);
 
       expect(fetchedLogs.length, 4);
 
@@ -89,22 +87,22 @@ void main() {
       await logger.close();
       stressStopwatch.stop();
 
-      var fileByteSize = await logger.file.length();
+      var fileByteSize = await logger.file!.length();
       print("Stress test took ${stressStopwatch.elapsedMilliseconds}ms and created a file of size ${(fileByteSize / 1000000).toStringAsFixed(2)}MB."
           "Average write speed: ${(fileByteSize / stressStopwatch.elapsedMilliseconds).toStringAsFixed(2)}KB/s");
 
-      final logs = await logger.file.readAsLines();
+      final logs = await logger.file!.readAsLines();
       expect(logs.length, 40000);
 
       print("Checking validity of logs...");
       var validityStopwatch = Stopwatch()..start();
-      var isValid = await Logger.isFileValid(logger.file);
+      var isValid = await Logger.isFileValid(logger.file!);
       validityStopwatch.stop();
       print("Validity check took ${validityStopwatch.elapsedMilliseconds}ms");
 
       expect(isValid, true);
     });
 
-    tearDown(() => testLogDir.deleteSync(recursive: true));
+    //tearDown(() => testLogDir.deleteSync(recursive: true));
   });
 }
