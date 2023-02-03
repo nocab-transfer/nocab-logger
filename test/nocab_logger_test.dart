@@ -103,6 +103,6 @@ void main() {
       expect(isValid, true);
     });
 
-    //tearDown(() => testLogDir.deleteSync(recursive: true));
+    tearDown(() => testLogDir.deleteSync(recursive: true));
   });
 }
