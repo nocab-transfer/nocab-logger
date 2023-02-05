@@ -55,7 +55,7 @@ class Logger {
     if (name.length < 2) throw FormatException('Logger name must be at least 2 characters long');
 
     if (storeInFile) {
-      _file = File(join(logPath!, '$name-${DateFormat('yyyy-MM-dd').format(DateTime.now())}.log'))..createSync(recursive: true);
+      _file = File(join(logPath!, '$name-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.log'))..createSync(recursive: true);
       _sink = _file?.openWrite(mode: FileMode.append);
     }
 
