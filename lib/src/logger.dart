@@ -56,7 +56,7 @@ class Logger {
 
     if (storeInFile) {
       DateTime now = DateTime.now();
-      _file = File(join(logPath!, '$name-${DateFormat('yyyyMMddTHHmmss').format(now)}-${now.millisecond}.log'))..createSync(recursive: true);
+      _file = File(join(logPath!, '$name-${DateFormat('yyyyMMddTHHmmss', 'en_US').format(now)}-${now.millisecond}.log'))..createSync(recursive: true);
       _sink = _file?.openWrite(mode: FileMode.append);
     }
 
