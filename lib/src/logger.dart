@@ -49,11 +49,11 @@ class Logger {
   /// Throws a [StateError] if [storeInFile] is true and [logPath] is null.
   ///
   /// Throws a [FileSystemException] if the log file cannot be created.
-  Logger(this.name, {bool storeInFile = false, String? logPath, bool printLog = true}) : assert(!storeInFile || logPath != null) {
-    if (name.endsWith('.') || name.startsWith('.')) throw FormatException('Logger name cannot start or end with a dot (.)');
-    if (name.contains(':')) throw FormatException('Logger name cannot contain a colon (:)');
-    if (name.length < 2) throw FormatException('Logger name must be at least 2 characters long');
-
+  Logger(this.name, {bool storeInFile = false, String? logPath, bool printLog = true})
+      : assert(!storeInFile || logPath != null, 'logPath cannot be null if storeInFile is true'),
+        assert(!name.endsWith('.') && !name.startsWith('.'), 'Logger name cannot start or end with a dot (.)'),
+        assert(name.length >= 2, 'Logger name must be at least 2 characters long'),
+        assert(!name.contains(':'), 'Logger name cannot contain a colon (:)') {
     if (storeInFile) {
       DateTime now = DateTime.now();
       _file = File(join(logPath!, '$name-${DateFormat('yyyyMMddTHHmmss', 'en_US').format(now)}-${now.millisecond}.log'))..createSync(recursive: true);
