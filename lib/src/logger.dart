@@ -16,7 +16,7 @@ class Logger {
   final StreamController<Log> _controller = StreamController<Log>.broadcast();
   Stream<Log> get onLogged => _controller.stream;
 
-  final ReceivePort _receivePort = ReceivePort();
+  ReceivePort? _receivePort;
 
   /// Use this to send logs to this logger from another isolate.
   ///
@@ -26,7 +26,7 @@ class Logger {
   /// logger.sendPort.send(Log(LogLevel.info, 'Hello from another isolate', 'MyLogger'));
   /// ```
   /// loggerName will be overridden with the name of this logger.
-  SendPort get sendPort => _receivePort.sendPort;
+  SendPort get sendPort => _receivePort!.sendPort;
 
   IOSink? _sink;
 
@@ -49,11 +49,13 @@ class Logger {
   /// Throws a [StateError] if [storeInFile] is true and [logPath] is null.
   ///
   /// Throws a [FileSystemException] if the log file cannot be created.
-  Logger(this.name, {bool storeInFile = false, String? logPath, bool printLog = true})
+  Logger(this.name, {bool storeInFile = false, String? logPath, bool printLog = true, bool mainLogger = true})
       : assert(!storeInFile || logPath != null, 'logPath cannot be null if storeInFile is true'),
         assert(!name.endsWith('.') && !name.startsWith('.'), 'Logger name cannot start or end with a dot (.)'),
         assert(name.length >= 2, 'Logger name must be at least 2 characters long'),
         assert(!name.contains(':'), 'Logger name cannot contain a colon (:)') {
+    if (mainLogger) _receivePort = ReceivePort();
+
     if (storeInFile) {
       DateTime now = DateTime.now();
       _file = File(join(logPath!, '$name-${DateFormat('yyyyMMddTHHmmss', 'en_US').format(now)}-${now.millisecond}.log'))..createSync(recursive: true);
@@ -65,7 +67,7 @@ class Logger {
       _sink?.writeln(log.toString().replaceAll('\n', '\\n').replaceAll('\r', '\\r'));
     });
 
-    _receivePort.listen((message) {
+    _receivePort?.listen((message) {
       if (message is Log) {
         _log(message.level, message.message, className: message.className, error: message.error, stackTrace: message.stackTrace);
       } else {
@@ -73,6 +75,8 @@ class Logger {
       }
     });
   }
+
+  factory Logger.chained(SendPort sendPort) => _ChainedLogger(sendPort);
 
   void _log(LogLevel level, String message, {String? className, Object? error, StackTrace? stackTrace}) {
     if (className != null && className.length < 2) throw FormatException('Class name must be at least 2 characters long');
@@ -98,7 +102,7 @@ class Logger {
   }
 
   Future<void> close({bool deleteFile = false}) async {
-    _receivePort.close();
+    _receivePort?.close();
     await _controller.close();
     await _sink?.flush();
     await _sink?.close();
@@ -127,5 +131,18 @@ class Logger {
 
     final lines = await file.readAsLines();
     return lines.map((e) => Log.fromString(e)).toList();
+  }
+}
+
+class _ChainedLogger extends Logger {
+  final SendPort _mainLoggerSendPort;
+
+  @override
+  SendPort get sendPort => _mainLoggerSendPort;
+
+  _ChainedLogger(this._mainLoggerSendPort) : super('ChainedLogger', printLog: false, mainLogger: false) {
+    onLogged.listen((log) {
+      _mainLoggerSendPort.send(log);
+    });
   }
 }

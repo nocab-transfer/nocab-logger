@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
 import 'package:nocab_logger/nocab_logger.dart';
 import 'package:path/path.dart';
@@ -70,6 +71,25 @@ void main() {
         expect(fetchedLogs[i].error, "Exception: test error");
         expect(fetchedLogs[i].stackTrace != null, true);
       }
+    });
+
+    test('Between Isolates', () async {
+      var logger = Logger("test", storeInFile: true, logPath: testLogDir.path, printLog: true);
+
+      ReceivePort onExit = ReceivePort();
+
+      Isolate.spawn((mainLoggerSendPort) {
+        var logger = Logger.chained(mainLoggerSendPort);
+        logger.info("test info message", className: "test", error: Exception("test error"), stackTrace: StackTrace.current);
+      }, logger.sendPort, onExit: onExit.sendPort);
+
+      await onExit.first;
+      await logger.close();
+
+      final logs = await Logger.getLogs(logger.file!);
+      expect(logs.length, 1);
+      expect(logs[0].level, LogLevel.INFO);
+      expect(logs[0].message, "test info message ");
     });
 
     test('Stress Test', () async {

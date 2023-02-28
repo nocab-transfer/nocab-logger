@@ -49,6 +49,38 @@ if (await Logger.isFileValid(logger.file!)) {
 logger.close();
 ```
 
+You can also use the `Logger.chained` class to log between isolates:
+
+
+```dart
+import 'package:nocab_logger/nocab_logger.dart';
+
+void main() async {
+  var logger = Logger("MainLogger", storeInFile: true, logPath: "path/to/logs/folder");
+
+  // Create a new isolate
+  ReceivePort exitPort = ReceivePort();
+  await Isolate.spawn(isolate, logger.sendPort, onExit: exitPort.sendPort);
+
+  // Listen for logs from the isolate
+  logger.onLog.listen((log) {
+    print(log);
+  });
+
+  // Wait for the isolate to finish
+  await exitPort.first;
+
+  logger.close();
+}
+
+void isolate(SendPort mainLoggerSendPort) {
+  var logger = Logger.chained(mainLoggerSendPort);
+
+  logger.info("Info message", className: "isolate");
+  logger.warning("Warning message", className: "isolate", error: Exception("test error"), stackTrace: StackTrace.current);
+}
+```
+
 ## Example Output
 ```text
 [INFO] - 2023-02-27T20:01:27.946352 MainLogger.main: Info message
